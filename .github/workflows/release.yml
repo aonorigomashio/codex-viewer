@@ -20,6 +20,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: CODEX-VIEWER-ENV
 
     steps:
       - name: Checkout
@@ -71,6 +72,17 @@ jobs:
           else
             echo "published=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Debug npm auth token
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "NPM_TOKEN is empty" >&2
+            exit 1
+          fi
+          echo "NPM_TOKEN length: ${#NPM_TOKEN}"
+          npm whoami || echo "npm whoami failed"
 
       - name: Publish to npm
         if: steps.already.outputs.published == 'false'
