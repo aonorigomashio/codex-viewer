@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "v*"
+      - "v*"            # 例: v1.2.3
   workflow_dispatch:
     inputs:
       tag_name:
@@ -13,11 +13,13 @@ on:
         description: "Release title (defaults to tag name)"
         required: false
 
+permissions:
+  contents: write         # Release 作成で必要
+  id-token: write         # （任意）--provenance を使う場合に必要
+
 jobs:
   release:
     runs-on: ubuntu-latest
-    # ← ここが重要：Environment 名を指定（あなたの画面だと GH_TOKEN という名前）
-    environment: CODEX-VIEWER-ENV
 
     steps:
       - name: Checkout
@@ -35,7 +37,6 @@ jobs:
         with:
           node-version: 20.12.0
           cache: pnpm
-          # （任意）npm 発行なら registry を明示
           registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
@@ -44,24 +45,42 @@ jobs:
       - name: Build project
         run: pnpm run build
 
-      - name: Configure npm auth token
-        env:
-          # Environment に置いた NPM_TOKEN を受け取る（environment 指定が必須）
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # 任意: タグと package.json の version を突き合わせて安全確認
+      - name: Verify tag and package version match
+        id: ver
         run: |
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "NPM_TOKEN secret is required to publish" >&2
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          case "${{ github.event_name }}" in
+            workflow_dispatch) TAG="${{ github.event.inputs.tag_name }}";;
+            *) TAG="${{ github.ref_name }}";;
+          esac
+          if [ "v${PKG_VERSION}" != "$TAG" ]; then
+            echo "Tag (${TAG}) and package.json version (v${PKG_VERSION}) mismatch" >&2
             exit 1
           fi
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-          npm config set always-auth true
+          echo "version=${PKG_VERSION}" >> "$GITHUB_OUTPUT"
+
+      # 任意: すでに同じ version が公開済みならスキップ
+      - name: Skip if version already published
+        id: already
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          if npm view "$NAME@${{ steps.ver.outputs.version }}" version >/dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "$NAME@${{ steps.ver.outputs.version }} is already published. Skipping."
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Publish to npm
+        if: steps.already.outputs.published == 'false'
         env:
-          # setup-node の規約：NODE_AUTH_TOKEN があれば publish で使われる
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}   # ここが肝
         run: |
+          # スコープ付きなら初回は --access public が必要
           npm publish --access public
+          # 署名付きサプライチェーン証跡を付けたい場合は ↓
+          # npm publish --access public --provenance
 
       - name: Determine release metadata
         id: meta
@@ -83,8 +102,7 @@ jobs:
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
-          # ここは secrets.GITHUB_TOKEN ではなく github.token を使う
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}   # secrets.GITHUB_TOKEN ではなく github.token
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
           release_name: ${{ steps.meta.outputs.name }}
