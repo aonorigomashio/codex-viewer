@@ -1,40 +1,46 @@
-# Claude Code Viewer
+# Codex Viewer
 
-A full-featured web-based Claude Code client that provides complete interactive functionality for managing Claude Code projects. Start new conversations, resume existing sessions, monitor running tasks in real-time, and browse your conversation history - all through a modern web interface.
+A full-featured web-based Codex client that provides complete interactive functionality for managing Codex projects. Start new conversations, resume existing sessions, monitor running tasks in real-time, and browse your conversation history - all through a modern web interface.
 
-![demo](./docs/assets/claude-code-viewer-demo-min.gif)
+> **Note**: This project is a derivative work of claude-code-viewer by d-kimuson.  
+> The original project can be found at: https://github.com/d-kimuson/claude-code-viewer
+>
+> **注記**: このプロジェクトは d-kimuson による claude-code-viewer をベースにCodex用に動くように書き換えたものです。  
+> オリジナルのプロジェクトはこちらです: https://github.com/d-kimuson/claude-code-viewer
+
+![demo](./docs/assets/codex-viewer-demo-min.gif)
 
 ## Overview
 
-Claude Code Viewer has evolved from a simple conversation viewer into a comprehensive web-based Claude Code client. It provides all essential Claude Code functionality through an intuitive web interface, including creating new sessions, resuming conversations, real-time task management, and live synchronization with your local Claude Code projects.
+Codex Viewer has evolved from a simple conversation viewer into a comprehensive web-based Codex client. It provides all essential Codex functionality through an intuitive web interface, including creating new sessions, resuming conversations, real-time task management, and live synchronization with your local Codex projects.
 
-The application leverages Server-Sent Events (SSE) for real-time bidirectional communication, automatically syncing with JSONL conversation files in `~/.claude/projects/` and providing instant updates as conversations progress.
+The application leverages Server-Sent Events (SSE) for real-time bidirectional communication, automatically syncing with JSONL conversation files in `~/.codex/sessions/` and providing instant updates as conversations progress.
 
 ## Features
 
-### Interactive Claude Code Client
+### Interactive Codex Client
 
-- **New Chat Creation** - Start new Claude sessions directly from the web interface
-- **Session Resumption** - Continue paused Claude conversations with full context
-- **Real-time Task Management** - Monitor, control, and abort running Claude tasks
-- **Command Autocompletion** - Smart completion for both global and project-specific Claude commands
+- **New Chat Creation** - Start new Codex sessions directly from the web interface
+- **Session Resumption** - Continue paused Codex conversations with full context
+- **Real-time Task Management** - Monitor, control, and abort running Codex tasks
+- **Command Autocompletion** - Smart completion for both global and project-specific Codex commands
 - **Live Status Indicators** - Visual feedback for running, paused, and completed tasks
 
 ### Real-time Synchronization
 
 - **Server-Sent Events (SSE)** - Instant bidirectional communication and updates
 - **File System Monitoring** - Automatic detection of conversation file changes
-- **Live Task Updates** - Real-time progress tracking for active Claude sessions
+- **Live Task Updates** - Real-time progress tracking for active Codex sessions
 - **Auto-refresh UI** - Instant updates when conversations are modified externally
 
 ### Advanced Conversation Management
 
-- **Project Browser** - View all Claude Code projects with metadata and session counts
+- **Project Browser** - View all Codex projects with metadata and session counts
 - **Smart Session Filtering** - Hide empty sessions, unify duplicates, filter by status
 - **Multi-tab Interface** - Sessions, Tasks, and Settings in an organized sidebar
 - **Conversation Display** - Human-readable format with syntax highlighting and tool usage
 - **Command Detection** - Enhanced display of XML-like command structures
-- **Task Controller** - Full lifecycle management of Claude processes
+- **Task Controller** - Full lifecycle management of Codex processes
 
 ## Installation & Usage
 
@@ -43,14 +49,14 @@ The application leverages Server-Sent Events (SSE) for real-time bidirectional c
 Run directly from npm without installation:
 
 ```bash
-PORT=3400 npx @kimuson/claude-code-viewer@latest
+PORT=3400 npx @nogataka/codex-viewer@latest
 ```
 
 Alternatively, install globally:
 
 ```bash
-npm install -g @kimuson/claude-code-viewer
-claude-code-viewer
+npm install -g @nogataka/codex-viewer
+codex-viewer
 ```
 
 The application uses pnpm as the package manager (v10.8.1) and is published as version 0.1.0.
@@ -62,8 +68,8 @@ The server will start on port 3400 (or the specified PORT). Open `http://localho
 Clone and run locally:
 
 ```bash
-git clone https://github.com/d-kimuson/claude-code-viewer.git
-cd claude-code-viewer
+git clone https://github.com/nogataka/codex-viewer.git
+cd codex-viewer
 pnpm i
 pnpm build
 pnpm start
@@ -71,9 +77,9 @@ pnpm start
 
 ## Data Source
 
-The application reads Claude Code conversation files from:
+The application reads Codex conversation files from:
 
-- **Location**: `~/.claude/projects/<project>/<session-id>.jsonl`
+- **Location**: `~/.codex/sessions/<workspace>/<session-id>.jsonl`
 - **Format**: JSONL files containing conversation entries
 - **Auto-detection**: Automatically discovers new projects and sessions
 
@@ -81,7 +87,7 @@ The application reads Claude Code conversation files from:
 
 ### 1. Project List
 
-- Browse all Claude Code projects
+- Browse all Codex projects
 - View project metadata (name, path, session count, last modified)
 - Click any project to view its sessions
 
@@ -107,16 +113,16 @@ The application reads Claude Code conversation files from:
 Set a custom port using the `PORT` environment variable:
 
 ```bash
-PORT=8080 npx @kimuson/claude-code-viewer@latest
+PORT=8080 npx @nogataka/codex-viewer@latest
 ```
 
 ### Data Directory
 
-The application automatically detects the standard Claude Code directory at `~/.claude/projects/`. No additional configuration is required.
+The application automatically detects the standard Codex directory at `~/.codex/sessions/`. No additional configuration is required.
 
 ## License
 
-This project is available under the MIT License.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
 
 ## Contributing
 

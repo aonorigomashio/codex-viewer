@@ -134,7 +134,7 @@ export const parseCodexSession = (
     if (turns.length === 0) {
       return createTurn();
     }
-    return turns[turns.length - 1]!;
+    return turns[turns.length - 1] ?? createTurn();
   };
 
   const startNewTurn = (): CodexSessionTurn => {
@@ -166,13 +166,20 @@ export const parseCodexSession = (
 
     if (parsed.type === "session_meta") {
       if (parsed.payload && typeof parsed.payload === "object") {
-        const payload = parsed.payload as Record<string, unknown>;
-        const idValue = payload["id"];
-        const cwdValue = payload["cwd"];
-        const instructionsValue = payload["instructions"];
-        const originatorValue = payload["originator"];
-        const cliVersionValue = payload["cli_version"];
-        const timestampValue = payload["timestamp"];
+        const payload = parsed.payload as Partial<{
+          id: string;
+          cwd: string;
+          instructions: string;
+          originator: string;
+          cli_version: string;
+          timestamp: string;
+        }>;
+        const idValue = payload.id;
+        const cwdValue = payload.cwd;
+        const instructionsValue = payload.instructions;
+        const originatorValue = payload.originator;
+        const cliVersionValue = payload.cli_version;
+        const timestampValue = payload.timestamp;
         sessionMeta = {
           sessionUuid:
             typeof idValue === "string" ? idValue : sessionMeta.sessionUuid,
@@ -508,7 +515,7 @@ export const parseCodexSession = (
       }
 
       if (payload.type === "token_count") {
-        const info = (payload as Record<string, unknown>)["info"] ?? null;
+        const info = (payload as { info?: unknown }).info ?? null;
         const metaEvent: CodexMetaEvent = {
           type: "token_count",
           timestamp,

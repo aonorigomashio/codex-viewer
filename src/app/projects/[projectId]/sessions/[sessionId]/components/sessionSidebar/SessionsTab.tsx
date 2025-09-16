@@ -91,7 +91,10 @@ export const SessionsTab: FC<{
               : session.id;
 
           const aliveTask = aliveTasks.find((task) => {
-            if (session.sessionUuid && task.sessionUuid === session.sessionUuid) {
+            if (
+              session.sessionUuid &&
+              task.sessionUuid === session.sessionUuid
+            ) {
               return true;
             }
             return task.sessionId === session.id;

@@ -3,7 +3,6 @@ import { type FC, useCallback, useId, useRef, useState } from "react";
 import { Button } from "../../../../../components/ui/button";
 import { Textarea } from "../../../../../components/ui/textarea";
 import { useConfig } from "../../../../hooks/useConfig";
-import type { CommandCompletionRef } from "./CommandCompletion";
 import type { FileCompletionRef } from "./FileCompletion";
 import { InlineCompletion } from "./InlineCompletion";
 
@@ -40,7 +39,6 @@ export const ChatInput: FC<ChatInputProps> = ({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const commandCompletionRef = useRef<CommandCompletionRef>(null);
   const fileCompletionRef = useRef<FileCompletionRef>(null);
   const helpId = useId();
   const { config } = useConfig();
@@ -53,10 +51,6 @@ export const ChatInput: FC<ChatInputProps> = ({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (fileCompletionRef.current?.handleKeyDown(e)) {
-      return;
-    }
-
-    if (commandCompletionRef.current?.handleKeyDown(e)) {
       return;
     }
 
@@ -135,11 +129,6 @@ export const ChatInput: FC<ChatInputProps> = ({
     };
   }, []);
 
-  const handleCommandSelect = (command: string) => {
-    setMessage(command);
-    textareaRef.current?.focus();
-  };
-
   const handleFileSelect = (filePath: string) => {
     setMessage(filePath);
     textareaRef.current?.focus();
@@ -187,9 +176,7 @@ export const ChatInput: FC<ChatInputProps> = ({
           <InlineCompletion
             projectId={projectId}
             message={message}
-            commandCompletionRef={commandCompletionRef}
             fileCompletionRef={fileCompletionRef}
-            handleCommandSelect={handleCommandSelect}
             handleFileSelect={handleFileSelect}
             cursorPosition={cursorPosition}
           />

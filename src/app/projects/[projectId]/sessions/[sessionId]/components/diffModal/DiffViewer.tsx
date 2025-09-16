@@ -5,7 +5,6 @@ import type { FC } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Button } from "../../../../../../../components/ui/button";
 import type { DiffHunk, FileDiff } from "./types";
 
 interface DiffViewerProps {
@@ -128,8 +127,7 @@ const FileHeader: FC<FileHeaderProps> = ({
     return "modified";
   };
 
-  const handleCopyFilename = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCopyFilename = async () => {
     try {
       await navigator.clipboard.writeText(fileDiff.filename);
       toast.success("ファイル名をコピーしました");
@@ -140,62 +138,56 @@ const FileHeader: FC<FileHeaderProps> = ({
   };
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onToggleCollapse}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onToggleCollapse();
-        }
-      }}
-      className="w-full bg-gray-50 dark:bg-gray-800 px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors min-h-[4rem] rounded-md cursor-pointer"
-    >
-      <div className="w-full space-y-1">
-        {/* Row 1: icon, status, and stats */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {isCollapsed ? (
-              <ChevronRightIcon className="w-4 h-4 text-gray-500" />
-            ) : (
-              <ChevronDownIcon className="w-4 h-4 text-gray-500" />
-            )}
-            <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-mono">
-              {getFileStatusIcon()}
+    <div className="w-full bg-gray-50 dark:bg-gray-800 px-4 py-4 rounded-md">
+      <button
+        type="button"
+        onClick={onToggleCollapse}
+        className="w-full text-left"
+      >
+        <div className="w-full space-y-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {isCollapsed ? (
+                <ChevronRightIcon className="w-4 h-4 text-gray-500" />
+              ) : (
+                <ChevronDownIcon className="w-4 h-4 text-gray-500" />
+              )}
+              <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs font-mono">
+                {getFileStatusIcon()}
+              </div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {getFileStatusText()}
+              </span>
             </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {getFileStatusText()}
-            </span>
+            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+              {fileDiff.linesAdded > 0 && (
+                <span className="text-green-600 dark:text-green-400">
+                  +{fileDiff.linesAdded}
+                </span>
+              )}
+              {fileDiff.linesDeleted > 0 && (
+                <span className="text-red-600 dark:text-red-400">
+                  -{fileDiff.linesDeleted}
+                </span>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-            {fileDiff.linesAdded > 0 && (
-              <span className="text-green-600 dark:text-green-400">
-                +{fileDiff.linesAdded}
-              </span>
-            )}
-            {fileDiff.linesDeleted > 0 && (
-              <span className="text-red-600 dark:text-red-400">
-                -{fileDiff.linesDeleted}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Row 2: filename with copy button */}
-        <div className="w-full flex items-center gap-2">
-          <span className="font-mono text-sm font-medium text-black dark:text-white text-left truncate flex-1 min-w-0">
+          <span className="font-mono text-sm font-medium text-black dark:text-white text-left truncate block">
             {fileDiff.filename}
           </span>
-          <Button
-            onClick={handleCopyFilename}
-            variant="ghost"
-            size="sm"
-            className="flex-shrink-0 p-1 h-6 w-6 hover:bg-gray-200 dark:hover:bg-gray-600"
-          >
-            <CopyIcon className="w-3 h-3 text-gray-500 dark:text-gray-400" />
-          </Button>
         </div>
+      </button>
+      <div className="mt-2 flex justify-end">
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            void handleCopyFilename();
+          }}
+          className="p-1 h-6 w-6 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md inline-flex items-center justify-center"
+        >
+          <CopyIcon className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+        </button>
       </div>
       {fileDiff.isBinary && (
         <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 text-left">

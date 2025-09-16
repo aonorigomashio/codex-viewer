@@ -4,7 +4,10 @@ import { useMemo } from "react";
 import { honoClient } from "../../../../../../lib/api/client";
 import { aliveTasksAtom } from "../store/aliveTasksAtom";
 
-export const useAliveTask = (sessionPathId: string, sessionUuid?: string | null) => {
+export const useAliveTask = (
+  sessionPathId: string,
+  sessionUuid?: string | null,
+) => {
   const [aliveTasks, setAliveTasks] = useAtom(aliveTasksAtom);
 
   useQuery({

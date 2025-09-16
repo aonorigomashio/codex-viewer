@@ -4,6 +4,7 @@ import { streamSSE } from "hono/streaming";
 import { z } from "zod";
 import { configSchema } from "../config/config";
 import { CodexTaskController } from "../service/codex/CodexTaskController";
+import { readSessionHeader } from "../service/codex/sessionFiles";
 import { getEventBus } from "../service/events/EventBus";
 import { getFileWatcher } from "../service/events/fileWatcher";
 import { sseEventResponse } from "../service/events/sseEventResponse";
@@ -16,7 +17,6 @@ import { getProject } from "../service/project/getProject";
 import { getProjects } from "../service/project/getProjects";
 import { getSession } from "../service/session/getSession";
 import { getSessions } from "../service/session/getSessions";
-import { readSessionHeader } from "../service/codex/sessionFiles";
 import { decodeSessionId } from "../service/session/id";
 import type { HonoAppType } from "./app";
 import { configMiddleware } from "./middleware/config.middleware";
@@ -167,14 +167,6 @@ export const routes = (app: HonoAppType) => {
           }
         },
       )
-
-      .get("/projects/:projectId/claude-commands", async (c) => {
-        return c.json({
-          globalCommands: [],
-          projectCommands: [],
-          defaultCommands: [],
-        });
-      })
 
       .get("/projects/:projectId/git/branches", async (c) => {
         const { projectId } = c.req.param();

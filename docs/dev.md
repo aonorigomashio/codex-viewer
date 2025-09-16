@@ -77,8 +77,8 @@ src/
 ### Installation
 
 ```bash
-git clone https://github.com/d-kimuson/claude-code-viewer.git
-cd claude-code-viewer
+git clone https://github.com/nogataka/codex-viewer.git
+cd codex-viewer
 pnpm install
 ```
 

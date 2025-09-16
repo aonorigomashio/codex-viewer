@@ -4,13 +4,16 @@ import prexit from "prexit";
 import { ulid } from "ulid";
 
 import { type EventBus, getEventBus } from "../events/EventBus";
-import { findLatestSessionForWorkspace, findSessionRecordByUuid } from "./sessionFiles";
 import { encodeSessionId } from "../session/id";
+import {
+  findLatestSessionForWorkspace,
+  findSessionRecordByUuid,
+} from "./sessionFiles";
 import type {
   CodexTask,
   CodexTaskStatus,
   SerializableAliveTask,
-} from "./types";;
+} from "./types";
 
 type StartSessionOptions = {
   cwd: string;
@@ -49,8 +52,8 @@ export class CodexTaskController {
   }
 
   public get aliveTasks(): CodexTask[] {
-    return this.tasks.filter((task) =>
-      task.status === "running" || task.status === "waiting",
+    return this.tasks.filter(
+      (task) => task.status === "running" || task.status === "waiting",
     );
   }
 
@@ -290,9 +293,8 @@ export class CodexTaskController {
           }
 
           if (parsed.type === "event_msg" && parsed.payload) {
-            const payload = parsed.payload as Record<string, unknown>;
-            const type = payload["type"];
-            if (type === "turn_aborted") {
+            const payload = parsed.payload as { type?: string };
+            if (payload.type === "turn_aborted") {
               updateStatus("waiting");
             }
           }
@@ -318,7 +320,13 @@ export class CodexTaskController {
         ensureSessionPath();
 
         if (task.queue.length > 0) {
-          const next = task.queue.shift()!;
+          const next = task.queue.shift();
+          if (!next) {
+            this.emitTaskChange();
+            this.pruneTaskIfInactive(task);
+            resolveIfPossible();
+            return;
+          }
           this.launchProcess(task, {
             message: next.message,
             requestId: next.requestId,
