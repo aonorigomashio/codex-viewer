@@ -41,4 +41,3 @@ dist/*
 # dist/standalone/node_modules
 
 .serena/
-RELEASE_WORKFLOW.md
