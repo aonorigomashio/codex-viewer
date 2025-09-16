@@ -16,6 +16,9 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # ← ここが重要：Environment 名を指定（あなたの画面だと GH_TOKEN という名前）
+    environment: CODEX-VIEWER-ENV
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,6 +35,8 @@ jobs:
         with:
           node-version: 20.12.0
           cache: pnpm
+          # （任意）npm 発行なら registry を明示
+          registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -41,6 +46,7 @@ jobs:
 
       - name: Configure npm auth token
         env:
+          # Environment に置いた NPM_TOKEN を受け取る（environment 指定が必須）
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           if [ -z "$NPM_TOKEN" ]; then
@@ -48,9 +54,14 @@ jobs:
             exit 1
           fi
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          npm config set always-auth true
 
       - name: Publish to npm
-        run: npm publish --access public
+        env:
+          # setup-node の規約：NODE_AUTH_TOKEN があれば publish で使われる
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish --access public
 
       - name: Determine release metadata
         id: meta
@@ -69,18 +80,11 @@ jobs:
             echo "target=${{ github.sha }}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Select GitHub token
-        run: |
-          if [ -n "${{ secrets.GH_TOKEN }}" ]; then
-            echo "GH_TOKEN=${{ secrets.GH_TOKEN }}" >> $GITHUB_ENV
-          else
-            echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-          fi
-
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ env.GH_TOKEN }}
+          # ここは secrets.GITHUB_TOKEN ではなく github.token を使う
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
           release_name: ${{ steps.meta.outputs.name }}
