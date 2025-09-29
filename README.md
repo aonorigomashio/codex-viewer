@@ -1,3 +1,5 @@
+**English** | [日本語](./README.ja.md)
+
 # Codex Viewer
 
 A full-featured web-based Codex client that provides complete interactive functionality for managing Codex projects. Start new conversations, resume existing sessions, monitor running tasks in real-time, and browse your conversation history - all through a modern web interface.
@@ -15,6 +17,15 @@ A full-featured web-based Codex client that provides complete interactive functi
 Codex Viewer has evolved from a simple conversation viewer into a comprehensive web-based Codex client. It provides all essential Codex functionality through an intuitive web interface, including creating new sessions, resuming conversations, real-time task management, and live synchronization with your local Codex projects.
 
 The application leverages Server-Sent Events (SSE) for real-time bidirectional communication, automatically syncing with JSONL conversation files in `~/.codex/sessions/` and providing instant updates as conversations progress.
+
+
+## Screenshots
+
+![Projects view](./docs/assets/images/img001.png)
+
+![Session list](./docs/assets/images/img002.png)
+
+![Session detail](./docs/assets/images/img003.png)
 
 ## Features
 
@@ -127,3 +138,11 @@ This project is licensed under the MIT License. See the [LICENSE](./LICENSE) fil
 ## Contributing
 
 See [docs/dev.md](docs/dev.md) for detailed development setup and contribution guidelines.
+
+## Articles
+
+Codex Viewer の導入背景や活用シナリオをさらに知りたい方は、以下の紹介記事もチェックしてください。
+
+- [Qiita: Codexプロジェクト管理を加速するCodex Viewerガイド](https://qiita.com/nogataka/items/28d04db421663a4a46fd) — UI構成やユースケースを詳しく解説
+- [Zenn: Codex ViewerでCodexセッションを俯瞰する](https://zenn.dev/taka000/articles/74a60c37fae5bb) — 日常運用での使いこなしポイントを紹介
+

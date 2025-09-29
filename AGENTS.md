@@ -1,22 +1,38 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-Claude Code Viewer is a Next.js 15 / React 19 application with an embedded Hono API. Route-driven UI lives in `src/app`, real-time and parsing services in `src/server/service`, and shared Zod schemas in `src/lib/conversation-schema`. UI primitives are under `src/components/ui`, while static assets reside in `public/` and CLI output is emitted to `dist/` after builds. Keep feature-specific hooks, services, and components co-located within the relevant route folder for clarity.
+- **App shell:** Next.js 15 routes live in `src/app`, with feature-specific hooks, services, and components co-located per route.
+- **Server layer:** Hono API endpoints and SSE helpers sit in `src/server/service`.
+- **Shared contracts:** Conversation schemas are centralized under `src/lib/conversation-schema` for Zod-driven types.
+- **UI primitives:** Reusable building blocks stay in `src/components/ui`; static assets land in `public/`; builds emit the CLI bundle to `dist/`.
+- **Testing assets:** Co-locate specs beside source files as `*.test.ts(x)` and reuse mocks from `src/test-setups/`.
 
 ## Build, Test, and Development Commands
-- `pnpm install` — install dependencies (requires Node 20.12+).
-- `pnpm dev` — launch Next.js with Turbopack on port 3400, serving the Hono API and SSE stream.
-- `pnpm build` — run `scripts/build.sh` to produce the standalone bundle in `dist/`.
-- `pnpm start` — execute the built CLI (`dist/index.js`).
-- `pnpm typecheck` — strict TypeScript compilation via `tsc --noEmit`.
-- `pnpm lint` / `pnpm fix` — format and lint with Biome (check vs write + unsafe fixes).
-- `pnpm test` / `pnpm test:watch` — run Vitest suites once or in watch mode.
+- `pnpm install` — install workspace dependencies (Node 20.12+ required).
+- `pnpm dev` — launch Turbopack dev server on http://localhost:3400 with the Hono API and SSE stream.
+- `pnpm build` — run `scripts/build.sh` to produce the distributable CLI in `dist/`.
+- `pnpm start` — execute the built CLI via `dist/index.js`.
+- `pnpm typecheck` — run `tsc --noEmit` for strict types.
+- `pnpm lint` / `pnpm fix` — check or auto-fix formatting with Biome 2.2.
+- `pnpm test` / `pnpm test:watch` — execute Vitest suites once or in watch mode.
 
 ## Coding Style & Naming Conventions
-Biome 2.2 enforces formatting: two-space indentation, double quotes, and organized imports. Components use `PascalCase.tsx`, utilities use `camelCase.ts`, constants stay in `SCREAMING_SNAKE_CASE`. Hooks begin with `use` and Jotai atoms end with `Atom`. Favor type inference from Zod schemas and keep Suspense-ready data fetching with TanStack Query.
+- Biome enforces two-space indentation, double quotes, and sorted imports; run `pnpm lint` before pushing.
+- Use `PascalCase.tsx` for components, `camelCase.ts` for utilities, `SCREAMING_SNAKE_CASE` for constants, and suffix atoms with `Atom`.
+- Prefer type inference from shared Zod schemas; ensure Suspense-ready data flows integrate with TanStack Query.
 
 ## Testing Guidelines
-Vitest 3 powers the test suite with globals enabled and shared setup from `vitest.config.ts`. Add specs alongside source files using `*.test.ts` or `*.test.tsx`, covering happy paths, failure handling, and SSE side effects. Run `pnpm test` plus `pnpm typecheck` before opening a PR, and extend mocks in `src/test-setups/` as needed.
+- Vitest 3 powers unit and integration suites with globals configured in `vitest.config.ts`.
+- Mirror production scenarios, cover failure paths, and assert SSE side effects.
+- Name specs `feature.test.ts` or `Component.test.tsx`; keep mocks in `src/test-setups/` for reuse.
+- Run `pnpm test` and `pnpm typecheck` before opening a PR; include CLI snapshots if behavior changes.
 
 ## Commit & Pull Request Guidelines
-Follow Conventional Commit prefixes (`feat:`, `fix:`, `chore:`) as seen in history, referencing issues like `#123` when applicable. PRs should include a concise summary, screenshots or terminal output for user-facing changes, a checklist of executed commands, and notes on any new environment variables. Request review once lint, type, and test checks pass locally.
+- Follow Conventional Commits (`feat:`, `fix:`, `chore:`) and reference issues (e.g., `#123`) when applicable.
+- PRs should summarize user-facing changes, attach screenshots or relevant terminal output, and list executed commands.
+- Note any new environment variables or migrations; request review only after lint, type, and test checks succeed.
+
+## Agent Workflow Tips
+- Keep feature work localized within a route folder to simplify reviews.
+- Favor incremental PRs; large changes should be broken into reviewable slices.
+- Document non-obvious architectural decisions in `docs/` or inline comments for future agents.

@@ -42,3 +42,5 @@ dist/*
 
 .serena/
 RELEASE_WORKFLOW.md
+
+qiita/

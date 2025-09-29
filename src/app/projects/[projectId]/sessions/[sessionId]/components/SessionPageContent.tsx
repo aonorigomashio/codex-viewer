@@ -2,6 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import {
+  CopyIcon,
   ExternalLinkIcon,
   GitCompareIcon,
   LoaderIcon,
@@ -24,6 +25,7 @@ import { ConversationList } from "./conversationList/ConversationList";
 import { DiffModal } from "./diffModal";
 import { ResumeChat } from "./resumeChat/ResumeChat";
 import { SessionSidebar } from "./sessionSidebar/SessionSidebar";
+import { toast } from "sonner";
 
 export const SessionPageContent: FC<{
   projectId: string;
@@ -58,6 +60,18 @@ export const SessionPageContent: FC<{
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDiffModalOpen, setIsDiffModalOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleCopySessionId = async () => {
+    const valueToCopy = session.sessionUuid ?? sessionId;
+
+    try {
+      await navigator.clipboard.writeText(valueToCopy);
+      toast.success("セッションIDをコピーしました");
+    } catch (error) {
+      console.error("Failed to copy session id:", error);
+      toast.error("セッションIDのコピーに失敗しました");
+    }
+  };
 
   // 自動スクロール処理
   useEffect(() => {
@@ -105,7 +119,7 @@ export const SessionPageContent: FC<{
             </div>
 
             <div className="px-1 sm:px-5 flex flex-wrap items-center gap-1 sm:gap-2">
-              {project?.project.workspacePath && (
+            {project?.project.workspacePath && (
                 <Link
                   href={`/projects/${projectId}`}
                   target="_blank"
@@ -120,12 +134,29 @@ export const SessionPageContent: FC<{
                   </Badge>
                 </Link>
               )}
-              <Badge
-                variant="secondary"
-                className="h-6 sm:h-8 text-xs sm:text-sm flex items-center"
-              >
-                {session.sessionUuid ?? sessionId}
-              </Badge>
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Badge
+                  variant="secondary"
+                  className="h-6 sm:h-8 text-xs sm:text-sm flex items-center gap-1"
+                >
+                  <span className="font-semibold">sessionId:</span>
+                  <span className="font-mono">
+                    {session.sessionUuid ?? sessionId}
+                  </span>
+                </Badge>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 sm:h-8 sm:w-8"
+                  onClick={() => {
+                    void handleCopySessionId();
+                  }}
+                  aria-label="セッションIDをコピー"
+                >
+                  <CopyIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+              </div>
             </div>
 
             {isRunningTask && (

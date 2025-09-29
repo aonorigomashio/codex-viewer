@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a comprehensive web-based Claude Code client that provides complete interactive functionality for managing Claude Code projects. Users can start new conversations, resume existing sessions, monitor running tasks in real-time, and browse conversation history through a modern web interface.
+This is a comprehensive web-based Codex client (forked from claude-code-viewer) that provides complete interactive functionality for managing Codex projects. Users can start new conversations, resume existing sessions, monitor running tasks in real-time, and browse conversation history through a modern web interface.
 
 ## Development Commands
 
@@ -48,7 +48,7 @@ pnpm test:watch # Run tests in watch mode
 ### Core Architecture Patterns
 
 **API Layer**: Hono.js app mounted at `/api` with type-safe routes:
-- `/api/projects` - List all Claude projects
+- `/api/projects` - List all Codex projects
 - `/api/projects/:projectId` - Get project details and sessions
 - `/api/projects/:projectId/sessions/:sessionId` - Get session conversations
 - `/api/projects/:projectId/sessions/:sessionId/start` - Start new Codex task
@@ -58,7 +58,7 @@ pnpm test:watch # Run tests in watch mode
 - `/api/events/state_changes` - Server-Sent Events for real-time updates
 
 **Data Flow**:
-1. Backend reads JSONL files from `~/.claude/projects/`
+1. Backend reads JSONL files from `~/.codex/sessions/`
 2. Parses and validates conversation entries with Zod schemas
 3. Frontend fetches via type-safe API client with TanStack Query
 4. Real-time updates via Server-Sent Events for file system changes and task updates
@@ -77,6 +77,7 @@ pnpm test:watch # Run tests in watch mode
 - `session/`: Session operations (getSessions, getSession, getSessionMeta)
 - `events/`: EventBus singleton and FileWatcherService for real-time monitoring
 - `git/`: Git operations (status, diff, branches, commits) for project context
+- `mcp/`: MCP list management for Codex integrations
 
 **Conversation Schema** (`src/lib/conversation-schema/`):
 - Modular Zod schemas for User, Assistant, Summary, System entry types
@@ -92,7 +93,7 @@ pnpm test:watch # Run tests in watch mode
 ### Key Features
 
 **Real-time Updates**:
-- FileWatcherService singleton monitors `~/.claude/projects/` using Node.js `fs.watch()`
+- FileWatcherService singleton monitors `~/.codex/sessions/` using Node.js `fs.watch()`
 - Server-Sent Events via Hono's `streamSSE()` for live UI updates
 - Event types: `connected`, `project_changed`, `session_changed`, `task_changed`, `heartbeat`
 - Automatic TanStack Query cache invalidation when files are modified
@@ -107,8 +108,9 @@ pnpm test:watch # Run tests in watch mode
 
 **Command Autocompletion**:
 - Parses available commands from conversation history
-- Supports both global and local Claude commands
+- Supports both global and local Codex commands
 - XML-like command structure parsing for enhanced display
+- File path completion for improved developer experience
 
 ### Development Notes
 

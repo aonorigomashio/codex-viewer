@@ -1,6 +1,6 @@
 {
   "name": "@nogataka/codex-viewer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -53,8 +53,9 @@
     "hono": "^4.9.5",
     "jotai": "^2.13.1",
     "lucide-react": "^0.542.0",
-    "next": "15.5.2",
+    "next": "15.3.4",
     "next-themes": "^0.4.6",
+    "open": "^10.2.0",
     "parse-git-diff": "^0.0.19",
     "prexit": "^2.3.0",
     "react": "^19.1.1",
