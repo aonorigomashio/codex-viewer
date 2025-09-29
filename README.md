@@ -94,3 +94,7 @@ Codex Viewer background and workflows are documented in:
 ## License & Contributing
 
 Licensed under MIT – see [LICENSE](./LICENSE). Contribution guidelines and architecture notes live in [docs/dev.md](docs/dev.md).
+
+## Release Notes
+
+- `dist/index.js` は CLI (bin) のエントリーポイントです。削除・リネームすると `npx @nogataka/codex-viewer` やグローバルインストールが動かなくなるので注意してください。

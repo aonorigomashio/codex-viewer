@@ -93,3 +93,7 @@ pnpm start
 ## ライセンス / コントリビュート
 
 MIT License。詳細は [LICENSE](./LICENSE) を参照。開発の流れは [docs/dev.md](docs/dev.md) にまとめています。
+
+## 注意事項
+
+- `dist/index.js` は CLI の実行エントリーポイントです。削除やリネームを行うと `npx @nogataka/codex-viewer` / グローバルインストールが動作しなくなるため、ビルド時・リリース時も必ず残してください。
