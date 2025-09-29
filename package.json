@@ -1,6 +1,6 @@
 {
   "name": "@nogataka/codex-viewer",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -20,7 +20,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "codex-viewer": "./bin/codex-viewer.js"
+    "codex-viewer": "./dist/index.js"
   },
   "scripts": {
     "dev": "run-p 'dev:*'",
