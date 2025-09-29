@@ -210,48 +210,63 @@ export const ProjectList: FC = () => {
           ))}
         </div>
       ) : (
-        <div className="space-y-3">
-          {filteredProjects.map((project) => (
-            <Card
-              key={project.id}
-              className="hover:shadow-sm transition-shadow"
-            >
-              <CardContent className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-start gap-3">
-                  <div className={cn("mt-1 rounded-md border p-2")}>
-                    <FolderIcon className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-semibold">
-                      {project.meta.workspaceName ?? project.workspacePath}
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-border text-sm">
+            <thead className="bg-muted/60 text-muted-foreground">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium">Project</th>
+                <th className="px-4 py-3 text-left font-medium">Path</th>
+                <th className="px-4 py-3 text-left font-medium">
+                  Last modified
+                </th>
+                <th className="px-4 py-3 text-left font-medium">Messages</th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {filteredProjects.map((project) => {
+                const lastModified = project.meta.lastSessionAt
+                  ? new Date(project.meta.lastSessionAt).toLocaleString()
+                  : "";
+
+                return (
+                  <tr key={project.id} className="hover:bg-muted/40">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className={cn("rounded-md border p-2")}>
+                          <FolderIcon className="h-4 w-4" />
+                        </div>
+                        <span className="font-medium">
+                          {project.meta.workspaceName ?? project.workspacePath}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
                       {project.meta.workspacePath}
-                    </p>
-                    <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                      <span>
-                        Last modified:{" "}
-                        {project.meta.lastSessionAt
-                          ? new Date(
-                              project.meta.lastSessionAt,
-                            ).toLocaleString()
-                          : ""}
-                      </span>
-                      <span className="flex items-center gap-1">
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {lastModified}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      <div className="inline-flex items-center gap-1">
                         <MessageSquareIcon className="h-3 w-3" />
                         {project.meta.sessionCount}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <Button asChild className="w-full sm:w-auto">
-                  <Link href={`/projects/${encodeURIComponent(project.id)}`}>
-                    View Sessions
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <Button asChild size="sm">
+                        <Link
+                          href={`/projects/${encodeURIComponent(project.id)}`}
+                        >
+                          View Sessions
+                        </Link>
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

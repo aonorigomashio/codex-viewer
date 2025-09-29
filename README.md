@@ -2,24 +2,9 @@
 
 # Codex Viewer
 
-A full-featured web-based Codex client that provides complete interactive functionality for managing Codex projects. Start new conversations, resume existing sessions, monitor running tasks in real-time, and browse your conversation history - all through a modern web interface.
+Codex Viewer is a full-featured web client for Codex projects. Launch new conversations, resume existing sessions, monitor running tasks, and review historical logs directly from your browser with real-time synchronization to `~/.codex/sessions/` and `~/.codex/history.jsonl`.
 
-> **Note**: This project is a derivative work of claude-code-viewer by d-kimuson.  
-> The original project can be found at: https://github.com/d-kimuson/claude-code-viewer
->
-> **注記**: このプロジェクトは d-kimuson による claude-code-viewer をベースにCodex用に動くように書き換えたものです。  
-> オリジナルのプロジェクトはこちらです: https://github.com/d-kimuson/claude-code-viewer
-
-![demo](./docs/assets/codex-viewer-demo-min.gif)
-
-## Overview
-
-Codex Viewer has evolved from a simple conversation viewer into a comprehensive web-based Codex client. It provides all essential Codex functionality through an intuitive web interface, including creating new sessions, resuming conversations, real-time task management, and live synchronization with your local Codex projects.
-
-The application leverages Server-Sent Events (SSE) for real-time bidirectional communication, automatically syncing with JSONL conversation files in `~/.codex/sessions/` and providing instant updates as conversations progress.
-
-
-## Screenshots
+> **Note**: This project is a Codex-focused fork of [claude-code-viewer](https://github.com/d-kimuson/claude-code-viewer) by d-kimuson.
 
 ![Projects view](./docs/assets/images/img001.png)
 
@@ -29,120 +14,83 @@ The application leverages Server-Sent Events (SSE) for real-time bidirectional c
 
 ## Features
 
-### Interactive Codex Client
+### Project Explorer
+- Search projects by name or path, sort by last update / name / message count, and switch between grid and table views.
+- See message counts and latest activity (including updates recorded in `history.jsonl`).
 
-- **New Chat Creation** - Start new Codex sessions directly from the web interface
-- **Session Resumption** - Continue paused Codex conversations with full context
-- **Real-time Task Management** - Monitor, control, and abort running Codex tasks
-- **Command Autocompletion** - Smart completion for both global and project-specific Codex commands
-- **Live Status Indicators** - Visual feedback for running, paused, and completed tasks
+### Session Management
+- Resume or inspect conversations with syntax-highlighted logs and tool outputs.
+- Copy `sessionId` instantly from the header; abort or resume Codex tasks from the UI.
+- View diffs, command outputs, and SSE-driven updates without manual refresh.
 
-### Real-time Synchronization
+### Automation & Integrations
+- CLI automatically opens the default browser once the server is ready (Windows, Linux, macOS). Disable via `CC_VIEWER_NO_AUTO_OPEN=1` or `NO_AUTO_OPEN=1`.
+- File watcher monitors both `~/.codex/sessions/` and `~/.codex/history.jsonl` to surface the latest activity in the UI.
 
-- **Server-Sent Events (SSE)** - Instant bidirectional communication and updates
-- **File System Monitoring** - Automatic detection of conversation file changes
-- **Live Task Updates** - Real-time progress tracking for active Codex sessions
-- **Auto-refresh UI** - Instant updates when conversations are modified externally
+## Quick Start
 
-### Advanced Conversation Management
-
-- **Project Browser** - View all Codex projects with metadata and session counts
-- **Smart Session Filtering** - Hide empty sessions, unify duplicates, filter by status
-- **Multi-tab Interface** - Sessions, Tasks, and Settings in an organized sidebar
-- **Conversation Display** - Human-readable format with syntax highlighting and tool usage
-- **Command Detection** - Enhanced display of XML-like command structures
-- **Task Controller** - Full lifecycle management of Codex processes
-
-## Installation & Usage
-
-### Quick Start (CLI)
-
-Run directly from npm without installation:
+Run without installation:
 
 ```bash
 PORT=3400 npx @nogataka/codex-viewer@latest
 ```
 
-Alternatively, install globally:
+Codex Viewer starts the server (default port 3400) and opens `http://localhost:3400` in your browser once it becomes reachable. To skip auto-launch, export `CC_VIEWER_NO_AUTO_OPEN=1` beforehand.
+
+### Install Globally
 
 ```bash
 npm install -g @nogataka/codex-viewer
 codex-viewer
 ```
 
-The application uses pnpm as the package manager (v10.8.1) and is published as version 0.1.0.
-
-The server will start on port 3400 (or the specified PORT). Open `http://localhost:3400` in your browser.
-
-### Alternative Installation
-
-Clone and run locally:
+### From Source
 
 ```bash
 git clone https://github.com/nogataka/codex-viewer.git
 cd codex-viewer
-pnpm i
+pnpm install
 pnpm build
 pnpm start
 ```
 
-## Data Source
-
-The application reads Codex conversation files from:
-
-- **Location**: `~/.codex/sessions/<workspace>/<session-id>.jsonl`
-- **Format**: JSONL files containing conversation entries
-- **Auto-detection**: Automatically discovers new projects and sessions
-
 ## Usage Guide
 
-### 1. Project List
+### 1. Projects Page
+- **Filter:** Type in the search box to narrow projects by workspace name or path.
+- **Sort:** Choose Last Modified, Project Name, or Message Count; toggle ascending / descending with the adjacent button.
+- **Views:** Grid view shows cards with quick actions; list view renders a sortable table with compact rows and direct navigation to sessions.
 
-- Browse all Codex projects
-- View project metadata (name, path, session count, last modified)
-- Click any project to view its sessions
+### 2. Sessions Page
+- **Header Controls:** Title reflects the first command; `sessionId:` badge includes a copy button and displays the UUID if present.
+- **Live Status:** Running or waiting tasks surface badges and actions (abort, resume). The page auto-scrolls as new turns arrive.
+- **Tooling:** Diff viewer, command outputs, and SSE updates keep the timeline synchronized with on-disk JSONL changes and `history.jsonl` events.
 
-### 2. Session Browser  
-
-- View all conversation sessions within a project
-- Filter to hide empty sessions
-- Sessions show message counts and timestamps
-- Click to view detailed conversation
-
-### 3. Conversation Viewer
-
-- Full conversation history with proper formatting
-- Syntax highlighting for code blocks
-- Tool usage and results clearly displayed
-- Navigation sidebar for jumping between sessions
-- Support for different message types (user, assistant, system, tools)
+### 3. Real-time Sync & History
+- The backend merges timestamps from both the session JSONL files and `~/.codex/history.jsonl`, so the “Last modified” column always reflects the latest Codex activity.
+- File watcher broadcasts `project_changed` / `session_changed` events via SSE, allowing the UI to react immediately without polling.
 
 ## Configuration
 
-### Port Configuration
+- **Port:** `PORT=8080 npx @nogataka/codex-viewer@latest`
+- **Disable Auto Browser:** `CC_VIEWER_NO_AUTO_OPEN=1` (alternatively `NO_AUTO_OPEN=1` or `NO_AUTO_BROWSER=1`)
+- **Data Directory:** Defaults to `~/.codex/sessions/`. `history.jsonl` is read automatically if present.
 
-Set a custom port using the `PORT` environment variable:
+## Development Scripts
 
-```bash
-PORT=8080 npx @nogataka/codex-viewer@latest
-```
-
-### Data Directory
-
-The application automatically detects the standard Codex directory at `~/.codex/sessions/`. No additional configuration is required.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
-
-## Contributing
-
-See [docs/dev.md](docs/dev.md) for detailed development setup and contribution guidelines.
+- `pnpm dev` – Run Next.js (Turbopack) + embedded Hono API on port 3400.
+- `pnpm lint` / `pnpm fix` – Format and lint via Biome.
+- `pnpm typecheck` – Strict TypeScript checks.
+- `pnpm test` – Execute Vitest suites.
+- `pnpm build` – Produce the standalone `.next/standalone` bundle and CLI entry in `dist/`.
 
 ## Articles
 
-Codex Viewer の導入背景や活用シナリオをさらに知りたい方は、以下の紹介記事もチェックしてください。
+Codex Viewer background and workflows are documented in:
 
-- [Qiita: Codexプロジェクト管理を加速するCodex Viewerガイド](https://qiita.com/nogataka/items/28d04db421663a4a46fd) — UI構成やユースケースを詳しく解説
-- [Zenn: Codex ViewerでCodexセッションを俯瞰する](https://zenn.dev/taka000/articles/74a60c37fae5bb) — 日常運用での使いこなしポイントを紹介
+- [Qiita: Codexプロジェクト管理を加速するCodex Viewerガイド](https://qiita.com/nogataka/items/28d04db421663a4a46fd)
+- [Zenn: Codex ViewerでCodexセッションを俯瞰する](https://zenn.dev/taka000/articles/74a60c37fae5bb)
 
+## License & Contributing
+
+Licensed under MIT – see [LICENSE](./LICENSE). Contribution guidelines and architecture notes live in [docs/dev.md](docs/dev.md).

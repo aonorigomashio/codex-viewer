@@ -2,10 +2,9 @@
 
 # Codex Viewer
 
-Codex Viewer は Codex プロジェクトをブラウザから操作できるフル機能の Web クライアントです。新しい会話の開始、既存セッションの再開、実行中タスクの監視、会話履歴のブラウズなど、Codex を日常的に利用する上で必要な操作をすべて提供します。
+Codex Viewer は Codex プロジェクトをブラウザから操作できるフル機能の Web クライアントです。新規セッションの開始、既存会話の再開、タスクの監視、履歴ログの確認をすべてブラウザで完結できます。`~/.codex/sessions/` と `~/.codex/history.jsonl` をリアルタイムに監視し、最新の Codex 活動を即座に UI に反映します。
 
-> **注記**: このプロジェクトは d-kimuson 氏による claude-code-viewer をベースに Codex 対応へ書き換えた派生プロジェクトです。  
-> オリジナル: https://github.com/d-kimuson/claude-code-viewer
+> **注記**: 本プロジェクトは d-kimuson 氏による [claude-code-viewer](https://github.com/d-kimuson/claude-code-viewer) を Codex 向けに派生させたものです。
 
 ![Projects view](./docs/assets/images/img001.png)
 
@@ -13,53 +12,40 @@ Codex Viewer は Codex プロジェクトをブラウザから操作できるフ
 
 ![Session detail](./docs/assets/images/img003.png)
 
-## 概要
-
-Codex Viewer は単なる会話ビューアを超え、ローカルの Codex セッションとリアルタイムに同期する Web クライアントとして進化しました。Server-Sent Events (SSE) を利用して `~/.codex/sessions/` 以下の JSONL を監視し、変化があれば即座に UI に反映します。
-
 ## 主な機能
 
-### 対話型 Codex クライアント
+### プロジェクト一覧
+- プロジェクト名やパスでフィルタリング、最終更新／名前／メッセージ数でソートが可能。
+- グリッド表示とテーブル表示を切り替えて、一覧性と詳細性を用途に合わせて選択。
+- `history.jsonl` のタイムスタンプも取り込み、最新アクティビティを「最終更新」に反映。
 
-- **新規チャット作成**: ブラウザから Codex セッションを開始
-- **セッション再開**: 途中の会話を文脈付きで再開
-- **タスク管理**: 実行中タスクの状態監視・中断が可能
-- **コマンド補完**: グローバル／プロジェクト固有コマンドの入力補助
-- **ステータス表示**: 実行中・待機中タスクを視覚的に把握
+### セッション管理
+- ヘッダーで `sessionId` をコピーしやすく表示（UUID があれば併記）。
+- 実行中／待機中タスクの状態をバッジで可視化し、その場で中断や再開が可能。
+- SSE により JSONL 更新や Codex コマンド結果が即座に反映され、手動リロード不要。
 
-### リアルタイム同期
+### 自動ブラウザ起動
+- CLI 起動後、サーバーが立ち上がると既定ブラウザを自動で開く（Windows / Linux / macOS 対応）。
+- `CC_VIEWER_NO_AUTO_OPEN=1` または `NO_AUTO_OPEN=1` を設定すると自動起動を無効化。
 
-- **SSE 配信**: 双方向に近いリアルタイム更新
-- **ファイル監視**: JSONL ファイルの変更を自動検知
-- **タスク更新**: 進行中タスクの進捗を即表示
-- **自動更新 UI**: 端末間での更新も即座に反映
+## クイックスタート
 
-### 会話管理の強化
-
-- **プロジェクト一覧**: メタ情報付きで Codex プロジェクトを一覧表示
-- **セッションフィルタ**: 空セッションの除外や重複タイトルの統合
-- **マルチタブ UI**: Sessions / MCP / Settings を切り替え
-- **読みやすい表示**: コードハイライト・ツール出力を整形表示
-- **コマンド検出**: `git diff` や `pnpm test` の結果を構造化して表示
-
-## インストールと利用
-
-### クイックスタート (CLI)
+インストールなしで実行:
 
 ```bash
 PORT=3400 npx @nogataka/codex-viewer@latest
 ```
 
-またはグローバルインストール:
+サーバー（既定ポート 3400）が起動し、到達可能になると `http://localhost:3400` がブラウザで自動的に開きます。自動起動を止めたい場合は `CC_VIEWER_NO_AUTO_OPEN=1` をセットしてください。
+
+### グローバルインストール
 
 ```bash
 npm install -g @nogataka/codex-viewer
 codex-viewer
 ```
 
-Node.js 20.12 以上、パッケージマネージャには `pnpm` (v10.8.1) を利用します。標準ではポート 3400 でサーバーが起動し、`http://localhost:3400` にアクセスすると UI が表示されます。
-
-### リポジトリからセットアップ
+### ソースからセットアップ
 
 ```bash
 git clone https://github.com/nogataka/codex-viewer.git
@@ -69,55 +55,41 @@ pnpm build
 pnpm start
 ```
 
-## データソース
+## 利用ガイド
 
-- **配置場所**: `~/.codex/sessions/<workspace>/<session-id>.jsonl`
-- **フォーマット**: JSON Lines 形式の会話ログ
-- **自動検出**: 新規セッションも自動で一覧に反映
+### 1. プロジェクトページ
+- 検索ボックスでプロジェクト名／パスをフィルタ。
+- ソートセレクタで「最終更新」「名前」「メッセージ数」を選択し、隣の矢印で昇順／降順を切り替え。
+- グリッド表示はカード型で直感的、テーブル表示は詳細列とナビゲーションを重視。
 
-## 使い方ガイド
+### 2. セッションページ
+- タイトル部の `sessionId:` バッジにコピーアイコンを配置、UUID を含む ID をワンクリックでコピー。
+- Codex タスクの進行状況をバナーで表示し、`Abort` ボタンで即停止。
+- Diff ビューアやコマンドログを備え、SSE により新しいログが到着した時点でタイムラインに反映。
 
-### 1. プロジェクト一覧
-
-- すべての Codex プロジェクトをブラウズ
-- ワークスペースパス・セッション数・最終更新日時を確認
-- 任意のプロジェクトを選ぶとセッション詳細へ遷移
-
-### 2. セッションブラウザ
-
-- プロジェクト内セッションをカード表示
-- 空セッションの非表示や重複タイトルの統合が可能
-- メッセージ数・タイムスタンプ・最初のコマンドで状況把握
-
-### 3. 会話ビューア
-
-- 会話全体を整形表示（コードはハイライト付き）
-- ツール実行結果やコマンド出力も見やすく整理
-- サイドバーから他セッションへすばやく移動
+### 3. リアルタイム同期
+- `~/.codex/sessions/` の JSONL 変更と `~/.codex/history.jsonl` の追記を両方監視。
+- 更新が発生すると SSE (`/api/events/state_changes`) で `project_changed` / `session_changed` を配信し、画面が自動更新。
 
 ## 設定
 
-### ポート
+- **ポート変更**: `PORT=8080 npx @nogataka/codex-viewer@latest`
+- **ブラウザ自動起動の無効化**: `CC_VIEWER_NO_AUTO_OPEN=1`（または `NO_AUTO_OPEN=1`, `NO_AUTO_BROWSER=1`）
+- **データディレクトリ**: 既定で `~/.codex/sessions/` および `~/.codex/history.jsonl` を利用します。
 
-```bash
-PORT=8080 npx @nogataka/codex-viewer@latest
-```
+## 開発コマンド
 
-### データディレクトリ
-
-既定で `~/.codex/sessions/` を参照します。追加設定は不要です。
-
-## ライセンス
-
-MIT License。詳細は [LICENSE](./LICENSE) を参照してください。
-
-## コントリビュート
-
-開発手順や貢献の流れは [docs/dev.md](docs/dev.md) を参照してください。
+- `pnpm dev` – Turbopack + Hono API を同時起動（ポート 3400）
+- `pnpm lint` / `pnpm fix` – Biome によるフォーマット・Lint（自動修正込み）
+- `pnpm typecheck` – TypeScript 厳格チェック
+- `pnpm test` – Vitest によるテスト
+- `pnpm build` – `.next/standalone` と CLI (`dist/index.js`) を生成
 
 ## 紹介記事
 
-Codex Viewer の背景やユースケースを詳しく知るには以下の記事もご覧ください。
+- [Qiita: Codexプロジェクト管理を加速するCodex Viewerガイド](https://qiita.com/nogataka/items/28d04db421663a4a46fd) – UI 構成とユースケースを詳細に解説
+- [Zenn: Codex ViewerでCodexセッションを俯瞰する](https://zenn.dev/taka000/articles/74a60c37fae5bb) – 実運用での活用ポイントを紹介
 
-- [Qiita: Codexプロジェクト管理を加速するCodex Viewerガイド](https://qiita.com/nogataka/items/28d04db421663a4a46fd) — UI 構成と活用例を詳説
-- [Zenn: Codex ViewerでCodexセッションを俯瞰する](https://zenn.dev/taka000/articles/74a60c37fae5bb) — 日常運用での使いこなしポイントを紹介
+## ライセンス / コントリビュート
+
+MIT License。詳細は [LICENSE](./LICENSE) を参照。開発の流れは [docs/dev.md](docs/dev.md) にまとめています。
