@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTaskNotifications } from "@/hooks/useTaskNotifications";
@@ -25,7 +26,6 @@ import { ConversationList } from "./conversationList/ConversationList";
 import { DiffModal } from "./diffModal";
 import { ResumeChat } from "./resumeChat/ResumeChat";
 import { SessionSidebar } from "./sessionSidebar/SessionSidebar";
-import { toast } from "sonner";
 
 export const SessionPageContent: FC<{
   projectId: string;
@@ -119,7 +119,7 @@ export const SessionPageContent: FC<{
             </div>
 
             <div className="px-1 sm:px-5 flex flex-wrap items-center gap-1 sm:gap-2">
-            {project?.project.workspacePath && (
+              {project?.project.workspacePath && (
                 <Link
                   href={`/projects/${projectId}`}
                   target="_blank"

@@ -4,6 +4,7 @@ import { readdir, stat } from "node:fs/promises";
 import { basename, join } from "node:path";
 
 import { codexSessionsRootPath } from "../paths";
+import { getHistoryTimestamps } from "./history";
 
 export type CodexSessionHeader = {
   sessionUuid: string | null;
@@ -93,6 +94,7 @@ export const listCodexSessionRecords = async (): Promise<
 > => {
   const root = codexSessionsRootPath;
   const records: CodexSessionRecord[] = [];
+  const sessionUuidMap = new Map<string, CodexSessionRecord>();
 
   const stack: string[] = [root];
 
@@ -145,6 +147,20 @@ export const listCodexSessionRecords = async (): Promise<
       };
       records.push(record);
       sessionCache.set(fullPath, record);
+      if (record.sessionUuid) {
+        sessionUuidMap.set(record.sessionUuid, record);
+      }
+    }
+  }
+
+  const historyTimestamps = await getHistoryTimestamps();
+  for (const [sessionUuid, timestamp] of historyTimestamps.entries()) {
+    const record = sessionUuidMap.get(sessionUuid);
+    if (!record) {
+      continue;
+    }
+    if (!record.lastModifiedAt || timestamp > record.lastModifiedAt) {
+      record.lastModifiedAt = timestamp;
     }
   }
 

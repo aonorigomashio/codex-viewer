@@ -1,11 +1,12 @@
 import { existsSync, type FSWatcher, watch } from "node:fs";
 import { join } from "node:path";
-
+import { readLatestHistoryEntry } from "../codex/history";
 import {
+  findSessionRecordByUuid,
   getCachedSessionRecord,
   readSessionHeader,
 } from "../codex/sessionFiles";
-import { codexSessionsRootPath } from "../paths";
+import { codexHistoryFilePath, codexSessionsRootPath } from "../paths";
 import { encodeProjectId } from "../project/id";
 import { encodeSessionId } from "../session/id";
 import { type EventBus, getEventBus } from "./EventBus";
@@ -13,6 +14,7 @@ import { type EventBus, getEventBus } from "./EventBus";
 export class FileWatcherService {
   private watcher: FSWatcher | null = null;
   private projectWatchers: Map<string, FSWatcher> = new Map();
+  private historyWatcher: FSWatcher | null = null;
   private eventBus: EventBus;
 
   constructor() {
@@ -20,6 +22,10 @@ export class FileWatcherService {
   }
 
   public startWatching(): void {
+    if (this.watcher) {
+      return;
+    }
+
     try {
       console.log("Starting file watcher on:", codexSessionsRootPath);
       // Codex セッションディレクトリを監視
@@ -67,8 +73,54 @@ export class FileWatcherService {
         },
       );
       console.log("File watcher initialization completed");
+
+      if (!this.historyWatcher && existsSync(codexHistoryFilePath)) {
+        this.historyWatcher = watch(
+          codexHistoryFilePath,
+          { persistent: false },
+          () => {
+            void this.handleHistoryChange();
+          },
+        );
+      }
     } catch (error) {
       console.error("Failed to start file watching:", error);
+    }
+  }
+
+  private async handleHistoryChange(): Promise<void> {
+    try {
+      const latestEntry = await readLatestHistoryEntry();
+      if (!latestEntry?.sessionId) {
+        return;
+      }
+
+      const record = await findSessionRecordByUuid(latestEntry.sessionId);
+      if (!record?.workspacePath) {
+        return;
+      }
+
+      const projectId = encodeProjectId(record.workspacePath);
+      const sessionId = encodeSessionId(record.filePath);
+
+      this.eventBus.emit("project_changed", {
+        type: "project_changed",
+        data: {
+          projectId,
+          fileEventType: "change",
+        },
+      });
+
+      this.eventBus.emit("session_changed", {
+        type: "session_changed",
+        data: {
+          projectId,
+          sessionId,
+          fileEventType: "change",
+        },
+      });
+    } catch (error) {
+      console.error("Failed to process history change", error);
     }
   }
 
@@ -82,6 +134,11 @@ export class FileWatcherService {
       watcher.close();
     }
     this.projectWatchers.clear();
+
+    if (this.historyWatcher) {
+      this.historyWatcher.close();
+      this.historyWatcher = null;
+    }
   }
 }
 
