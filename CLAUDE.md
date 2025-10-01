@@ -12,7 +12,7 @@ This is a comprehensive web-based Codex client (forked from claude-code-viewer) 
 ```bash
 pnpm dev
 ```
-Runs Next.js on port 3400 with Turbopack for fast development.
+Runs Next.js on port 5656 with Turbopack for fast development.
 
 **Build and type checking:**
 ```bash

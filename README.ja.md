@@ -33,10 +33,10 @@ Codex Viewer は Codex プロジェクトをブラウザから操作できるフ
 インストールなしで実行:
 
 ```bash
-PORT=3400 npx @nogataka/codex-viewer@latest
+PORT=5656 npx @nogataka/codex-viewer@latest
 ```
 
-サーバー（既定ポート 3400）が起動し、到達可能になると `http://localhost:3400` がブラウザで自動的に開きます。自動起動を止めたい場合は `CC_VIEWER_NO_AUTO_OPEN=1` をセットしてください。
+サーバー（既定ポート 5656）が起動し、到達可能になると `http://localhost:5656` がブラウザで自動的に開きます。自動起動を止めたい場合は `CC_VIEWER_NO_AUTO_OPEN=1` をセットしてください。
 
 ### グローバルインストール
 
@@ -79,7 +79,7 @@ pnpm start
 
 ## 開発コマンド
 
-- `pnpm dev` – Turbopack + Hono API を同時起動（ポート 3400）
+- `pnpm dev` – Turbopack + Hono API を同時起動（ポート 5656）
 - `pnpm lint` / `pnpm fix` – Biome によるフォーマット・Lint（自動修正込み）
 - `pnpm typecheck` – TypeScript 厳格チェック
 - `pnpm test` – Vitest によるテスト

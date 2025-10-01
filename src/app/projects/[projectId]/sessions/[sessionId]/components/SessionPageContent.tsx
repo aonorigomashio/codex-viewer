@@ -2,6 +2,8 @@
 
 import { useMutation } from "@tanstack/react-query";
 import {
+  ArrowDown,
+  ArrowUp,
   CopyIcon,
   ExternalLinkIcon,
   GitCompareIcon,
@@ -11,7 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { FC } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,6 +62,21 @@ export const SessionPageContent: FC<{
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDiffModalOpen, setIsDiffModalOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const hasInitialScrollRef = useRef(false);
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior });
+    }
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, []);
 
   const handleCopySessionId = async () => {
     const valueToCopy = session.sessionUuid ?? sessionId;
@@ -73,6 +90,15 @@ export const SessionPageContent: FC<{
     }
   };
 
+  // 初期表示はログの最下部へスクロール
+  useEffect(() => {
+    if (!hasInitialScrollRef.current && turns.length > 0) {
+      scrollToBottom("auto");
+      hasInitialScrollRef.current = true;
+      setPreviousTurnLength(turns.length);
+    }
+  }, [turns, scrollToBottom]);
+
   // 自動スクロール処理
   useEffect(() => {
     if (
@@ -80,15 +106,9 @@ export const SessionPageContent: FC<{
       turns.length !== previousTurnLength
     ) {
       setPreviousTurnLength(turns.length);
-      const scrollContainer = scrollContainerRef.current;
-      if (scrollContainer) {
-        scrollContainer.scrollTo({
-          top: scrollContainer.scrollHeight,
-          behavior: "smooth",
-        });
-      }
+      scrollToBottom();
     }
-  }, [turns, isRunningTask, isPausedTask, previousTurnLength]);
+  }, [turns, isRunningTask, isPausedTask, previousTurnLength, scrollToBottom]);
 
   return (
     <div className="flex h-screen max-h-screen overflow-hidden">
@@ -194,7 +214,7 @@ export const SessionPageContent: FC<{
 
         <div
           ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto min-h-0 min-w-0"
+          className="flex-1 overflow-y-auto min-h-0 min-w-0 relative"
         >
           <main className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 relative z-5 min-w-0">
             <SessionMetaSummary instructions={sessionMeta.instructions} />
@@ -225,6 +245,27 @@ export const SessionPageContent: FC<{
             />
           </main>
         </div>
+      </div>
+
+      <div className="fixed bottom-24 right-6 flex flex-col gap-2 z-40">
+        <Button
+          variant="secondary"
+          size="icon"
+          className="shadow"
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="secondary"
+          size="icon"
+          className="shadow"
+          onClick={() => scrollToBottom()}
+          aria-label="Scroll to bottom"
+        >
+          <ArrowDown className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Fixed Diff Button */}

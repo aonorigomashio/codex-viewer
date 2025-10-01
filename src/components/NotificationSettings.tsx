@@ -95,7 +95,7 @@ export const NotificationSettings: FC<NotificationSettingsProps> = ({
 
         {showDescriptions && (
           <p className="text-xs text-muted-foreground">
-            Claude Code のタスクが完了した時に再生する音を選択してください
+            Codexのタスクが完了した時に再生する音を選択してください
           </p>
         )}
       </div>

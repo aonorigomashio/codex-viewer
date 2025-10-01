@@ -32,10 +32,10 @@ Codex Viewer is a full-featured web client for Codex projects. Launch new conver
 Run without installation:
 
 ```bash
-PORT=3400 npx @nogataka/codex-viewer@latest
+PORT=5656 npx @nogataka/codex-viewer@latest
 ```
 
-Codex Viewer starts the server (default port 3400) and opens `http://localhost:3400` in your browser once it becomes reachable. To skip auto-launch, export `CC_VIEWER_NO_AUTO_OPEN=1` beforehand.
+Codex Viewer starts the server (default port 5656) and opens `http://localhost:5656` in your browser once it becomes reachable. To skip auto-launch, export `CC_VIEWER_NO_AUTO_OPEN=1` beforehand.
 
 ### Install Globally
 
@@ -78,7 +78,7 @@ pnpm start
 
 ## Development Scripts
 
-- `pnpm dev` – Run Next.js (Turbopack) + embedded Hono API on port 3400.
+- `pnpm dev` – Run Next.js (Turbopack) + embedded Hono API on port 5656.
 - `pnpm lint` / `pnpm fix` – Format and lint via Biome.
 - `pnpm typecheck` – Strict TypeScript checks.
 - `pnpm test` – Execute Vitest suites.

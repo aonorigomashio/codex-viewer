@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 
-const DEFAULT_PORT = Number(process.env.PORT ?? "3400");
+if (process.env.PORT === undefined) {
+  process.env.PORT = "5656";
+}
+
+const DEFAULT_PORT = Number(process.env.PORT ?? "5656");
 const LOCALHOST = `http://localhost:${DEFAULT_PORT}`;
 const AUTO_OPEN_DISABLED = [
   process.env.CC_VIEWER_NO_AUTO_OPEN,

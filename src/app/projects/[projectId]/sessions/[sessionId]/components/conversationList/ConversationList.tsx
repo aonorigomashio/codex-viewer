@@ -1,6 +1,6 @@
 "use client";
-import { ChevronDown, ChevronRight, Settings } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type {
@@ -137,75 +137,93 @@ const ToolCallCard = ({
   call: CodexToolCall;
   result?: CodexToolResult;
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isInputOpen, setIsInputOpen] = useState(false);
   const [isResultOpen, setIsResultOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isExpanded) {
+      setIsInputOpen(false);
+      setIsResultOpen(false);
+    }
+  }, [isExpanded]);
 
   return (
     <Card className="p-1 max-w-4xl bg-blue-50/50 dark:bg-blue-950/10 border-blue-200/50 dark:border-blue-800/50">
       <CardContent className="px-4 !py-2">
-        <div className="flex items-center gap-2 mb-2">
-          <Settings className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <span className="text-sm font-medium">Tool Use</span>
+        <button
+          type="button"
+          onClick={() => setIsExpanded((prev) => !prev)}
+          className="flex w-full items-center gap-2 text-sm font-medium text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200 transition-colors"
+        >
+          {isExpanded ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
+          <span>Tool Use</span>
           <Badge
             variant="secondary"
             className="text-xs text-blue-600 dark:text-blue-400 bg-transparent border-blue-200 dark:border-blue-800"
           >
             {formatToolName(call.name)}
           </Badge>
-        </div>
+        </button>
 
-        <div className="text-xs text-muted-foreground mb-3">
-          Tool execution with ID: toolu_
-          {call.callId?.substring(0, 20) || "unknown"}...
-        </div>
-
-        {/* Input Parameters Section */}
-        <div className="pt-2">
-          <button
-            type="button"
-            onClick={() => setIsInputOpen(!isInputOpen)}
-            className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors w-full text-left py-1"
-          >
-            {isInputOpen ? (
-              <ChevronDown className="h-3 w-3" />
-            ) : (
-              <ChevronRight className="h-3 w-3" />
-            )}
-            Input Parameters
-          </button>
-          {isInputOpen && (
-            <div className="mt-2 pl-4">
-              <JsonViewer data={call.arguments} />
+        {isExpanded && (
+          <div className="mt-3 space-y-3 text-xs">
+            <div className="text-muted-foreground">
+              Tool execution with ID: toolu_
+              {call.callId?.substring(0, 20) || "unknown"}...
             </div>
-          )}
-        </div>
 
-        {/* Tool Result Section */}
-        <div className="pt-2 mt-2">
-          <button
-            type="button"
-            onClick={() => setIsResultOpen(!isResultOpen)}
-            className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors w-full text-left py-1"
-          >
-            {isResultOpen ? (
-              <ChevronDown className="h-3 w-3" />
-            ) : (
-              <ChevronRight className="h-3 w-3" />
-            )}
-            Tool Result
-          </button>
-          {isResultOpen && (
-            <div className="mt-2 pl-4">
-              {result ? (
-                <JsonViewer data={result.output} />
-              ) : (
-                <span className="text-xs text-muted-foreground">
-                  No result available
-                </span>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setIsInputOpen((prev) => !prev)}
+                className="flex items-center gap-1 font-medium text-muted-foreground hover:text-foreground transition-colors w-full text-left py-1"
+              >
+                {isInputOpen ? (
+                  <ChevronDown className="h-3 w-3" />
+                ) : (
+                  <ChevronRight className="h-3 w-3" />
+                )}
+                Input Parameters
+              </button>
+              {isInputOpen && (
+                <div className="mt-2 pl-4">
+                  <JsonViewer data={call.arguments} />
+                </div>
               )}
             </div>
-          )}
-        </div>
+
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setIsResultOpen((prev) => !prev)}
+                className="flex items-center gap-1 font-medium text-muted-foreground hover:text-foreground transition-colors w-full text-left py-1"
+              >
+                {isResultOpen ? (
+                  <ChevronDown className="h-3 w-3" />
+                ) : (
+                  <ChevronRight className="h-3 w-3" />
+                )}
+                Tool Result
+              </button>
+              {isResultOpen && (
+                <div className="mt-2 pl-4">
+                  {result ? (
+                    <JsonViewer data={result.output} />
+                  ) : (
+                    <span className="text-muted-foreground">
+                      No result available
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
