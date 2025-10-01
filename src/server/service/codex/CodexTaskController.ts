@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { runCodex, type ExecOpts } from "@/server/codex/runCodex";
 import readline from "node:readline";
 import prexit from "prexit";
 import { ulid } from "ulid";
@@ -185,51 +185,13 @@ export class CodexTaskController {
         }
       };
 
-      const jsonFlag = (() => {
-        const useExperimental = (
-          process.env as NodeJS.ProcessEnv & {
-            CODEX_USE_EXPERIMENTAL_JSON?: string;
-          }
-        ).CODEX_USE_EXPERIMENTAL_JSON;
-        if (useExperimental) {
-          if (["1", "true", "yes"].includes(useExperimental.toLowerCase())) {
-            return "--experimental-json";
-          }
-        }
-        return "--json";
-      })();
+const execOpts: ExecOpts = {
+  cwd: options.cwd,
+  prompt: options.message,
+  resume: options.sessionUuid ?? undefined,
+};
+const child = runCodex(execOpts);
 
-      const args = [
-        "exec",
-        jsonFlag,
-        "--sandbox",
-        "workspace-write",
-        "-c",
-        'sandbox_workspace_write={network_access=true,writable_roots=["~/.cache","~/.uv"]}',
-        "-c",
-        "mcp_servers.serena.startup_timeout_sec=30",
-        "--cd",
-        options.cwd,
-      ];
-
-      if (options.sessionUuid) {
-        args.push("resume", options.sessionUuid, options.message);
-      } else {
-        args.push(options.message);
-      }
-
-      const childEnv = {
-        ...process.env,
-      } as NodeJS.ProcessEnv & { RUST_LOG?: string };
-      if (!childEnv.RUST_LOG) {
-        childEnv.RUST_LOG = "warn,codex_core::mcp_connection_manager=off";
-      }
-
-      const child = spawn("codex", args, {
-        cwd: options.cwd,
-        env: childEnv,
-        stdio: ["ignore", "pipe", "pipe"],
-      });
 
       task.process = child;
 

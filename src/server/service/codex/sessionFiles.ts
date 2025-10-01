@@ -1,3 +1,4 @@
+import { canonicalizeWinCwd } from "@/lib/winpath";
 import type { Dirent } from "node:fs";
 import { createReadStream } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
@@ -79,7 +80,10 @@ export const readSessionHeader = async (
 
     return {
       sessionUuid: parsed.payload?.id ?? null,
-      workspacePath: parsed.payload?.cwd ?? null,
+      workspacePath: (() => {
+  const raw = parsed.payload?.cwd ?? null;
+  return raw ? canonicalizeWinCwd(raw) : null;
+})(),
       startedAt: parsed.payload?.timestamp ?? parsed.timestamp ?? null,
       instructions: parsed.payload?.instructions ?? null,
     } satisfies CodexSessionHeader;
