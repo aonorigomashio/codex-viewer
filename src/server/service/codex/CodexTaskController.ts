@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { runCodex, type ExecOpts } from "@/server/codex/runCodex";
 import readline from "node:readline";
 import prexit from "prexit";
 import { ulid } from "ulid";
@@ -185,26 +185,15 @@ export class CodexTaskController {
         }
       };
 
-      const args = [
-        "exec",
-        "--json",
-        "--sandbox",
-        "workspace-write",
-        "--cd",
-        options.cwd,
-      ];
+const execOpts: ExecOpts = {
+  cwd: options.cwd,
+  prompt: options.message,
+  // sandbox は CODEX_SANDBOX 環境変数を優先。必要ならここで上書き可:
+  // sandbox: "workspace-write",
+  resume: options.sessionUuid ?? undefined,
+};
+const child = runCodex(execOpts);
 
-      if (options.sessionUuid) {
-        args.push("resume", options.sessionUuid, options.message);
-      } else {
-        args.push(options.message);
-      }
-
-      const child = spawn("codex", args, {
-        cwd: options.cwd,
-        env: { ...process.env },
-        stdio: ["ignore", "pipe", "pipe"],
-      });
 
       task.process = child;
 

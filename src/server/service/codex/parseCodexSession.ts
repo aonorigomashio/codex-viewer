@@ -1,3 +1,5 @@
+import { canonicalizeWinCwd } from "@/lib/winpath";
+
 import type {
   CodexConversationEntry,
   CodexMessage,
@@ -180,10 +182,17 @@ export const parseCodexSession = (
         const originatorValue = payload.originator;
         const cliVersionValue = payload.cli_version;
         const timestampValue = payload.timestamp;
+
+        // ★ ここで NT 接頭辞を除去しつつ正規化してから保持する
+        const safeCwd =
+          typeof cwdValue === "string"
+            ? canonicalizeWinCwd(cwdValue)
+            : sessionMeta.cwd;
+
         sessionMeta = {
           sessionUuid:
             typeof idValue === "string" ? idValue : sessionMeta.sessionUuid,
-          cwd: typeof cwdValue === "string" ? cwdValue : sessionMeta.cwd,
+          cwd: safeCwd,
           instructions:
             typeof instructionsValue === "string"
               ? instructionsValue

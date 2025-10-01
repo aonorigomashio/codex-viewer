@@ -1,3 +1,4 @@
+import { canonicalizeWinCwd } from "@/lib/winpath";
 import { zValidator } from "@hono/zod-validator";
 import { setCookie } from "hono/cookie";
 import { streamSSE } from "hono/streaming";
@@ -177,7 +178,8 @@ export const routes = (app: HonoAppType) => {
         }
 
         try {
-          const result = await getBranches(project.meta.workspacePath);
+          const safeCwd = canonicalizeWinCwd(project.meta.workspacePath);
+const result = await getBranches(safeCwd);
           return c.json(result);
         } catch (error) {
           console.error("Get branches error:", error);
@@ -197,7 +199,8 @@ export const routes = (app: HonoAppType) => {
         }
 
         try {
-          const result = await getCommits(project.meta.workspacePath);
+          const safeCwd = canonicalizeWinCwd(project.meta.workspacePath);
+const result = await getCommits(safeCwd);
           return c.json(result);
         } catch (error) {
           console.error("Get commits error:", error);
@@ -208,40 +211,44 @@ export const routes = (app: HonoAppType) => {
         }
       })
 
-      .post(
-        "/projects/:projectId/git/diff",
-        zValidator(
-          "json",
-          z.object({
-            fromRef: z.string().min(1, "fromRef is required"),
-            toRef: z.string().min(1, "toRef is required"),
-          }),
-        ),
-        async (c) => {
-          const { projectId } = c.req.param();
-          const { fromRef, toRef } = c.req.valid("json");
-          const { project } = await getProject(projectId);
+.post(
+  "/projects/:projectId/git/diff",
+  zValidator(
+    "json",
+    z.object({
+      fromRef: z.string().min(1, "fromRef is required"),
+      toRef: z.string().min(1, "toRef is required"),
+    }),
+  ),
+  async (c) => {
+    const { projectId } = c.req.param();
+    const { fromRef, toRef } = c.req.valid("json");
+    const { project } = await getProject(projectId);
 
-          if (!project.meta.workspacePath) {
-            return c.json({ error: "Project path not found" }, 400);
-          }
+    if (!project.meta.workspacePath) {
+      return c.json({ error: "Project path not found" }, 400);
+    }
 
-          try {
-            const result = await getDiff(
-              project.meta.workspacePath,
-              fromRef,
-              toRef,
-            );
-            return c.json(result);
-          } catch (error) {
-            console.error("Get diff error:", error);
-            if (error instanceof Error) {
-              return c.json({ error: error.message }, 400);
-            }
-            return c.json({ error: "Failed to get diff" }, 500);
-          }
-        },
-      )
+    // ★ ここで正規化
+    const safeCwd = canonicalizeWinCwd(project.meta.workspacePath);
+
+    try {
+      const result = await getDiff(
+        safeCwd,
+        fromRef,
+        toRef,
+      );
+      return c.json(result);
+    } catch (error) {
+      console.error("Get diff error:", error);
+      if (error instanceof Error) {
+        return c.json({ error: error.message }, 400);
+      }
+      return c.json({ error: "Failed to get diff" }, 500);
+    }
+  }
+)
+
 
       .get("/mcp/list", async (c) => {
         const { servers } = await getMcpList();
