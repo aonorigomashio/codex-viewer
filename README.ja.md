@@ -1,5 +1,8 @@
 [English](./README.md) | **Japanese**
 
+このフォークは Windows 対応の検証用です。
+restore/windows-goodはwindows10で動作確認済み(danger-full-access必須)、fix/windows-cwd-and-spawnは現状機能していません。
+
 # Codex Viewer
 
 Codex Viewer は Codex プロジェクトをブラウザから操作できるフル機能の Web クライアントです。新規セッションの開始、既存会話の再開、タスクの監視、履歴ログの確認をすべてブラウザで完結できます。`~/.codex/sessions/` と `~/.codex/history.jsonl` をリアルタイムに監視し、最新の Codex 活動を即座に UI に反映します。
