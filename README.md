@@ -1,4 +1,5 @@
 **English** | [日本語](./README.ja.md)
+This fork is for Windows compatibility verification. restore/windows-good has been tested on Windows 10 (requires danger-full-access), while fix/windows-cwd-and-spawn is currently non-functional.
 
 # Codex Viewer
 
